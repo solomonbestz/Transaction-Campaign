@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-
+from drf_spectacular.utils import extend_schema
 from api.models import Wallet, Campaign, Transaction
 from api.serializers import WalletSerializer, CampaignSerializer, TransactionSerializer
 
@@ -14,6 +14,7 @@ class WalletList(APIView):
     """
     List all snippets, or create a new snippet.
     """
+    @extend_schema(responses=WalletSerializer)
     def get(self, request, format=None):
         serializer_context = {
             'request': request
@@ -32,7 +33,7 @@ class WalletDetail(APIView):
             return wallet
         except Wallet.DoesNotExist:
             raise Http404
-        
+    @extend_schema(responses=WalletSerializer)
     def get(self, request, uid, format=None):
         serializer_context = {
             'request': request
@@ -44,6 +45,8 @@ class WalletDetail(APIView):
 
 class CampaignList(APIView):
     permission_classes = [IsAdminUser]
+
+    @extend_schema(responses=CampaignSerializer)
     def get(self, request, format=None):
         serializer_context = {
             'request': request
@@ -52,6 +55,7 @@ class CampaignList(APIView):
         serializer = CampaignSerializer(campaigns,  many=True, context=serializer_context)
         return Response(serializer.data)
     
+    @extend_schema(responses=CampaignSerializer)
     def post(self, request, format=None):
         serializer = CampaignSerializer(data=request.data)
         if serializer.is_valid():
@@ -67,7 +71,7 @@ class CampaignDetail(APIView):
             return campaign
         except Campaign.DoesNotExist:
             raise Http404
-        
+    @extend_schema(responses=CampaignSerializer)
     def get(self, request, uid, format=None):
         serializer_context = {
             'request': request
@@ -76,6 +80,7 @@ class CampaignDetail(APIView):
         serializer = CampaignSerializer(campaign, context=serializer_context)
         return Response(serializer.data)
     
+    @extend_schema(responses=CampaignSerializer)
     def put(self, request, uid, format=None):
         campaign = self.get_object(uid)
         serializer = CampaignSerializer(campaign, data=request.data)
@@ -84,6 +89,7 @@ class CampaignDetail(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(responses=CampaignSerializer)
     def delete(self, request, uid, format=None):
         campaign = self.get_object(uid)
         campaign.delete()
@@ -91,6 +97,8 @@ class CampaignDetail(APIView):
     
 class TransactionList(APIView):
     permission_classes = [IsAuthenticated]
+
+    @extend_schema(responses=TransactionSerializer)
     def get(self, request, format=None):
         serializer_context = {
             'request': request
@@ -98,8 +106,8 @@ class TransactionList(APIView):
         transactions = Transaction.objects.all()
         serializer = TransactionSerializer(transactions,  many=True, context=serializer_context)
         return Response(serializer.data)
-    
-
+     
+    @extend_schema(responses=TransactionSerializer)
     def post(self, request, format=None):
         campaign = Campaign.objects.all()[:1].get()
         wallet = Wallet.objects.get(user=request.user)
@@ -132,7 +140,8 @@ class TransactionDetail(APIView):
             return transaction
         except Transaction.DoesNotExist:
             raise Http404
-        
+
+    @extend_schema(responses=TransactionSerializer) 
     def get(self, request, uid, format=None):
         serializer_context = {
             'request': request
