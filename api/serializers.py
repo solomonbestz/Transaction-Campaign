@@ -17,7 +17,7 @@ class WalletSerializer(serializers.HyperlinkedModelSerializer):
 class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
-        fields = ('uid', 'sender', 'amount', 'fee', 'total')
+        fields = ('uid', 'sender', 'amount', 'fee', 'net', 'total')
 
 class CampaignSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
