@@ -36,7 +36,7 @@ class Transaction(models.Model):
     
     @property
     def total(self):
-        return self.amount + self.fee
+        return Decimal(self.amount) + Decimal(self.fee)
     
     def __str__(self):
         return str(self.sender)
