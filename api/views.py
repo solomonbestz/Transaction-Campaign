@@ -99,24 +99,27 @@ class TransactionList(APIView):
         serializer = TransactionSerializer(transactions,  many=True, context=serializer_context)
         return Response(serializer.data)
     
+
     def post(self, request, format=None):
-        campaigns = Campaign.objects.all()
+        campaign = Campaign.objects.all()[:1].get()
         wallet = Wallet.objects.get(user=request.user)
-        print(wallet)
-        serializer = TransactionSerializer(data=request.data)
+
+        transaction = Transaction(sender=wallet.user, amount = request.data["amount"])
+        
+        if campaign.status and wallet.trans_count < 3:
+            transaction.fee = 0
+            wallet.trans_count += 1
+            wallet.balance -= transaction.total
+        else:
+            wallet.balance -= transaction.total
+
+        if wallet.balance < transaction.total:
+            transaction.delete()
+            return Response("Insufficient Balance")
+        wallet.save()
+        serializer = TransactionSerializer(data=model_to_dict(transaction))
         if serializer.is_valid():
             serializer.save()
-        transaction = Transaction.objects.get(uid=serializer.data['uid'])
-
-        for campaign in campaigns:
-            if campaign.status and wallet.trans_count < 3:
-                transaction.fee = 0
-                wallet.trans_count += 1
-                transaction.save()
-                wallet.save()
-                serializer = TransactionSerializer(data=model_to_dict(transaction))
-                if serializer.is_valid():
-                    serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
