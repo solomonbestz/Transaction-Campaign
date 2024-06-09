@@ -23,6 +23,6 @@ urlpatterns =[
 
     # transactions ENDPOINT
     path("transactions/",  views.TransactionList.as_view()),
-    path("transsactions/<str:uid>/", views.TransactionDetail.as_view()),
+    path("transactions/<str:uid>/", views.TransactionDetail.as_view()),
 
 ]
