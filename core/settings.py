@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'rest_auth',
     'dj_rest_auth',
     'dj_rest_auth.registration',
-
     'api.apps.ApiConfig',
 ]
 
